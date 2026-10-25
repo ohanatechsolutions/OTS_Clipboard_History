@@ -8,6 +8,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using MenuItem = System.Windows.Controls.MenuItem;
+using DataGridRow = System.Windows.Controls.DataGridRow;
+using Color = System.Windows.Media.Color;
 
 namespace OTS.Clipboard;
 
