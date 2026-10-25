@@ -1,0 +1,182 @@
+<Window x:Class="OTS.Clipboard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="OTS Clipboard" Width="1020" Height="700" MinWidth="740" MinHeight="480"
+        WindowStartupLocation="CenterScreen" Background="#0F1724" Foreground="#EAF1FA"
+        FontFamily="Segoe UI" FontSize="13">
+    <Window.Resources>
+        <Style x:Key="ActionButton" TargetType="{x:Type Button}">
+            <Setter Property="Foreground" Value="#EAF1FA"/>
+            <Setter Property="Background" Value="#223146"/>
+            <Setter Property="BorderBrush" Value="#35455B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Border" CornerRadius="7" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#30445D"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#142336"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ClipboardRow" TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="#151F2E"/>
+            <Setter Property="Foreground" Value="#EAF1FA"/>
+            <Setter Property="BorderBrush" Value="#26374A"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Height" Value="46"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#24364B"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#20506C"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ClipboardCell" TargetType="{x:Type DataGridCell}">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+        <Style x:Key="ClipboardText" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="26,24,26,15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="OTS Clipboard" FontSize="27" FontWeight="SemiBold"/>
+                <TextBlock Text="Text history · Click any entry to copy it" FontSize="13"
+                           Foreground="#9FB0C3" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Border Grid.Column="1" Background="#172B35" CornerRadius="7" Padding="12,7"
+                    VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="RecordingDot" Width="8" Height="8" Fill="#3BC99F"
+                             VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <TextBlock x:Name="RecordingLabel" Text="Recording" Foreground="#D3E3F3"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="ClearHistoryButton" Grid.Column="0" Content="Clear history  ▾"
+                    Style="{StaticResource ActionButton}" Click="ClearHistoryButton_Click">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Last 15 minutes" Tag="15m" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 30 minutes" Tag="30m" Click="ClearRange_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Last 1 hour" Tag="1h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 2 hours" Tag="2h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 3 hours" Tag="3h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 4 hours" Tag="4h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 5 hours" Tag="5h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 6 hours" Tag="6h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 12 hours" Tag="12h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 24 hours" Tag="24h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 48 hours" Tag="48h" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 72 hours" Tag="72h" Click="ClearRange_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Last 1 week" Tag="1w" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 1 month" Tag="1mo" Click="ClearRange_Click"/>
+                        <MenuItem Header="Last 1 year" Tag="1y" Click="ClearRange_Click"/>
+                        <Separator/>
+                        <MenuItem Header="All time / Forever" Tag="all" Click="ClearRange_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Grid.Column="1" Content="Delete selected" Margin="10,0,0,0"
+                    Style="{StaticResource ActionButton}" Click="DeleteSelected_Click"/>
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <CheckBox x:Name="TrackingCheckBox" Content="Track clipboard" IsChecked="True"
+                          VerticalAlignment="Center" Foreground="#DDE6F2"
+                          Margin="0,0,20,0" Click="Tracking_Click"/>
+                <CheckBox x:Name="AutoStartCheckBox" Content="Start with Windows"
+                          VerticalAlignment="Center" Foreground="#DDE6F2"
+                          Click="AutoStart_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="2" CornerRadius="8" BorderBrush="#304056" BorderThickness="1"
+                Background="#151F2E" ClipToBounds="True">
+            <DataGrid x:Name="HistoryGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="None"
+                      SelectionMode="Extended" SelectionUnit="FullRow"
+                      RowStyle="{StaticResource ClipboardRow}"
+                      CellStyle="{StaticResource ClipboardCell}"
+                      RowBackground="#151F2E" AlternatingRowBackground="#151F2E"
+                      Background="#151F2E" Foreground="#EAF1FA"
+                      BorderThickness="0" CanUserAddRows="False"
+                      CanUserDeleteRows="False" CanUserReorderColumns="False"
+                      CanUserResizeRows="False" EnableRowVirtualization="True"
+                      ClipboardCopyMode="None"
+                      PreviewMouseLeftButtonUp="HistoryGrid_PreviewMouseLeftButtonUp"
+                      PreviewMouseRightButtonDown="HistoryGrid_PreviewMouseRightButtonDown">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="COPIED TEXT" Binding="{Binding Preview}" Width="*"
+                                        ElementStyle="{StaticResource ClipboardText}"/>
+                    <DataGridTextColumn Header="DATE &amp; TIME" Binding="{Binding LocalTimestamp}" Width="185"
+                                        ElementStyle="{StaticResource ClipboardText}"/>
+                </DataGrid.Columns>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Copy" Click="Copy_Click"/>
+                        <MenuItem Header="Edit" Click="Edit_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Select / Deselect" Click="ToggleSelection_Click"/>
+                        <MenuItem Header="Select All" Click="SelectAll_Click"/>
+                        <MenuItem Header="Deselect All" Click="DeselectAll_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Delete" Click="DeleteSelected_Click"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+            </DataGrid>
+        </Border>
+        <Grid Grid.Row="3" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Text="Ready" Foreground="#A1B1C7"
+                       VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBlock x:Name="CountText" Foreground="#A1B1C7" FontSize="12" Margin="0,0,18,0"/>
+                <TextBlock Text="Ohana Tech Solutions" Foreground="#64758B" FontSize="11"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

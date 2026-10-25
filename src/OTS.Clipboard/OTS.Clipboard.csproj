@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>OTS.Clipboard</AssemblyName>
+    <RootNamespace>OTS.Clipboard</RootNamespace>
+    <Version>1.0.0</Version>
+    <ApplicationTitle>OTS Clipboard</ApplicationTitle>
+    <Authors>Ohana Tech Solutions</Authors>
+    <Description>Private local Windows clipboard history manager</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+  </ItemGroup>
+</Project>

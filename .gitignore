@@ -1,0 +1,15 @@
+# Local .NET build outputs (never commit personal clipboard history)
+**/bin/
+**/obj/
+dist/
+.vs/
+.vscode/
+*.user
+*.suo
+*.cache
+*.pdb
+*.tmp
+history.dat
+history.dat.tmp
+*.zip
+# Installer EXE is purposefully committed by GitHub Actions to installer/

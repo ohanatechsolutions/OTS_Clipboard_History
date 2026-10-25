@@ -1,0 +1,102 @@
+name: Build Windows installer
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'installer/OTS_Clipboard_Setup.exe'
+      - 'installer/OTS_Clipboard_Setup.exe.sha256'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore and compile WPF application
+        shell: pwsh
+        run: |
+          dotnet restore src/OTS.Clipboard/OTS.Clipboard.csproj
+          if ($LASTEXITCODE -ne 0) { throw 'Restore failed' }
+          dotnet build src/OTS.Clipboard/OTS.Clipboard.csproj --no-restore --configuration Release
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+
+      - name: Publish self-contained Windows application
+        shell: pwsh
+        run: |
+          dotnet publish src/OTS.Clipboard/OTS.Clipboard.csproj --no-restore --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None --output dist/publish
+          if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }
+          if (-not (Test-Path 'dist/publish/OTS.Clipboard.exe')) { throw 'Application executable missing' }
+
+      - name: Install Inno Setup when necessary
+        shell: pwsh
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
+          }
+          if (-not (Test-Path $iscc)) { throw 'ISCC.exe not found' }
+
+      - name: Compile actual .exe installer
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'packaging/OTS_Clipboard.iss'
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          if (-not (Test-Path 'dist/setup/OTS_Clipboard_Setup.exe')) { throw 'Installer executable missing' }
+
+      - name: Generate SHA-256 checksum
+        shell: pwsh
+        run: |
+          $file = 'dist/setup/OTS_Clipboard_Setup.exe'
+          $hash = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLowerInvariant()
+          Set-Content -Path 'dist/setup/OTS_Clipboard_Setup.exe.sha256' -Value "$hash  OTS_Clipboard_Setup.exe" -Encoding ascii
+          Get-Item $file | Select-Object FullName,Length
+          Write-Host "SHA-256: $hash"
+
+      - name: Upload downloadable installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OTS_Clipboard_Windows_Installer
+          path: |
+            dist/setup/OTS_Clipboard_Setup.exe
+            dist/setup/OTS_Clipboard_Setup.exe.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Save real installer in repository installer folder
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path installer -Force | Out-Null
+          $file = 'dist/setup/OTS_Clipboard_Setup.exe'
+          $size = (Get-Item $file).Length
+          if ($size -ge 95000000) {
+            Write-Warning "Installer exceeds safe GitHub repository file size. Use the Actions artifact instead."
+            exit 0
+          }
+          Copy-Item $file 'installer/OTS_Clipboard_Setup.exe' -Force
+          Copy-Item 'dist/setup/OTS_Clipboard_Setup.exe.sha256' 'installer/OTS_Clipboard_Setup.exe.sha256' -Force
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add installer/OTS_Clipboard_Setup.exe installer/OTS_Clipboard_Setup.exe.sha256
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m 'build: update installable Windows EXE [skip ci]'
+            if ($LASTEXITCODE -ne 0) { throw 'Installer commit failed' }
+            git push origin HEAD:main
+            if ($LASTEXITCODE -ne 0) { throw 'Installer push failed; download the Actions artifact' }
+          } else {
+            Write-Host 'Installer files are unchanged.'
+          }
