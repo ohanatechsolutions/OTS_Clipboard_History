@@ -6,7 +6,7 @@ Set-Location (Resolve-Path (Join-Path $PSScriptRoot '..'))
 dotnet restore 'src/OTS.Clipboard/OTS.Clipboard.csproj'
 if ($LASTEXITCODE -ne 0) { throw 'Restore failed' }
 
-dotnet publish 'src/OTS.Clipboard/OTS.Clipboard.csproj' --no-restore -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o 'dist/publish'
+dotnet publish 'src/OTS.Clipboard/OTS.Clipboard.csproj' -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o 'dist/publish'
 if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }
 
 $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
