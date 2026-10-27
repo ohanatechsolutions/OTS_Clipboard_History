@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace OTS.Clipboard;
+namespace OTS.Clipboard.History;
 
 public sealed class ClipboardEntry
 {

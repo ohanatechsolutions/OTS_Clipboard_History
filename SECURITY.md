@@ -1,9 +1,11 @@
 # Security and privacy
 
-OTS Clipboard is a local-only tool. No accounts, analytics, cloud services, or networking are used.
+OTS Clipboard History is a local-only tool. No accounts, analytics, cloud services, or networking are used.
 
 - New plain-text clipboard copies are saved for the active Windows user in DPAPI-encrypted form at:
-  %LOCALAPPDATA%\OhanaTechSolutions\OTSClipboard\history.dat
+  %LOCALAPPDATA%\OhanaTechSolutions\OTSClipboardHistory\history.dat
+- When upgrading from the previous name, the encrypted file at `%LOCALAPPDATA%\OhanaTechSolutions\OTSClipboard\history.dat` is read once and imported into the renamed app's folder. The legacy file is preserved as a backup and must be manually removed after verifying the migration.
+- The DPAPI encryption entropy string remains intentionally compatible with version 1.0; changing it would make old history unreadable.
 - Encryption is scoped to the current Windows user; other processes running as that user can potentially access clipboard text while it is live.
 - Windows clipboard history, remote desktop clipboard syncing, other clipboard tools, crash dumps, filesystem backups, and applications may create their own copies. Clearing this app's history does not clear those copies.
 - No passwords, payment card numbers, or other sensitive text are filtered automatically. If you use password managers or sensitive documents, pause tracking whenever appropriate.

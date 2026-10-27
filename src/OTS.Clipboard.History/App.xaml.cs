@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Windows;
 
-namespace OTS.Clipboard;
+namespace OTS.Clipboard.History;
 
 public partial class App : System.Windows.Application
 {
@@ -11,11 +11,11 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        _singleInstance = new Mutex(true, @"Local\OTSClipboardSingleInstance", out _ownsMutex);
+        _singleInstance = new Mutex(true, @"Local\OTSClipboardHistorySingleInstance", out _ownsMutex);
         if (!_ownsMutex)
         {
-            System.Windows.MessageBox.Show("OTS Clipboard is already running. Look for its icon in the system tray.",
-                "OTS Clipboard", MessageBoxButton.OK, MessageBoxImage.Information);
+            System.Windows.MessageBox.Show("OTS Clipboard History is already running. Look for its icon in the system tray.",
+                "OTS Clipboard History", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }

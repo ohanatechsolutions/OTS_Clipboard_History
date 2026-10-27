@@ -1,4 +1,4 @@
-<Window x:Class="OTS.Clipboard.EditWindow"
+<Window x:Class="OTS.Clipboard.History.EditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Edit clipboard entry" Width="640" Height="410" MinWidth="430" MinHeight="290"

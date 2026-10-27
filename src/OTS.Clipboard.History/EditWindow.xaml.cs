@@ -1,7 +1,7 @@
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
-namespace OTS.Clipboard;
+namespace OTS.Clipboard.History;
 
 public partial class EditWindow : Window
 {
@@ -18,7 +18,7 @@ public partial class EditWindow : Window
     {
         if (string.IsNullOrWhiteSpace(Editor.Text))
         {
-            MessageBox.Show(this, "An entry cannot be empty.", "OTS Clipboard",
+            MessageBox.Show(this, "An entry cannot be empty.", "OTS Clipboard History",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }

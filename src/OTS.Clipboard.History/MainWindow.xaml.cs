@@ -13,14 +13,16 @@ using MenuItem = System.Windows.Controls.MenuItem;
 using DataGridRow = System.Windows.Controls.DataGridRow;
 using Color = System.Windows.Media.Color;
 
-namespace OTS.Clipboard;
+namespace OTS.Clipboard.History;
 
 public partial class MainWindow : Window
 {
     private const int WmClipboardUpdate = 0x031D;
     private const int MaxCopiedTextLength = 2_000_000;
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValueName = "OTSClipboard";
+    private const string RunValueName = "OTSClipboardHistory";
+    // Preserve previous users' optional startup preference during the rename.
+    private const string LegacyRunValueName = "OTSClipboard";
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -59,7 +61,7 @@ public partial class MainWindow : Window
             MessageBox.Show(this,
                 "Saved history could not be decrypted or read. Existing history will NOT be overwritten.\n\n" +
                 ex.Message + "\n\nCheck the local history file or Windows account before restarting.",
-                "OTS Clipboard · History warning",
+                "OTS Clipboard History · History warning",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
@@ -76,12 +78,12 @@ public partial class MainWindow : Window
         }
 
         var menu = new System.Windows.Forms.ContextMenuStrip();
-        menu.Items.Add("Open OTS Clipboard", null, (_, _) => RestoreWindow());
-        menu.Items.Add("Exit OTS Clipboard", null, (_, _) => ExitApplication());
+        menu.Items.Add("Open OTS Clipboard History", null, (_, _) => RestoreWindow());
+        menu.Items.Add("Exit OTS Clipboard History", null, (_, _) => ExitApplication());
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
             Icon = System.Drawing.SystemIcons.Application,
-            Text = "OTS Clipboard",
+            Text = "OTS Clipboard History",
             Visible = true,
             ContextMenuStrip = menu
         };
@@ -348,11 +350,13 @@ public partial class MainWindow : Window
                 var path = Environment.ProcessPath
                            ?? throw new InvalidOperationException("Application executable path not found.");
                 key.SetValue(RunValueName, "\"" + path + "\"");
-                StatusText.Text = "OTS Clipboard will start when you sign in to Windows";
+                key.DeleteValue(LegacyRunValueName, throwOnMissingValue: false);
+                StatusText.Text = "OTS Clipboard History will start when you sign in to Windows";
             }
             else
             {
                 key.DeleteValue(RunValueName, throwOnMissingValue: false);
+                key.DeleteValue(LegacyRunValueName, throwOnMissingValue: false);
                 StatusText.Text = "Start with Windows disabled";
             }
         }
@@ -360,7 +364,7 @@ public partial class MainWindow : Window
         {
             AutoStartCheckBox.IsChecked = ReadAutoStart();
             MessageBox.Show(this, "Could not change startup setting:\n" + ex.Message,
-                "OTS Clipboard", MessageBoxButton.OK, MessageBoxImage.Warning);
+                "OTS Clipboard History", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -368,8 +372,22 @@ public partial class MainWindow : Window
     {
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath);
-            return key?.GetValue(RunValueName) is string value && !string.IsNullOrWhiteSpace(value);
+            using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath);
+            if (key.GetValue(RunValueName) is string existing && !string.IsNullOrWhiteSpace(existing))
+                return true;
+
+            if (key.GetValue(LegacyRunValueName) is string old && !string.IsNullOrWhiteSpace(old))
+            {
+                // Replace the old startup path with the renamed executable (no duplicate launches).
+                var path = Environment.ProcessPath;
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    key.SetValue(RunValueName, "\"" + path + "\"");
+                    key.DeleteValue(LegacyRunValueName, throwOnMissingValue: false);
+                    return true;
+                }
+            }
+            return false;
         }
         catch
         {
@@ -393,7 +411,7 @@ public partial class MainWindow : Window
             UpdateTrackingLabel();
             StatusText.Text = "Storage failed; tracking paused to prevent losing data";
             MessageBox.Show(this, "Could not safely save encrypted history.\n\n" + ex.Message,
-                "OTS Clipboard", MessageBoxButton.OK, MessageBoxImage.Error);
+                "OTS Clipboard History", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - 'installer/OTS_Clipboard_Setup.exe'
-      - 'installer/OTS_Clipboard_Setup.exe.sha256'
+      - 'installer/OTS_Clipboard_History_Setup.exe'
+      - 'installer/OTS_Clipboard_History_Setup.exe.sha256'
   workflow_dispatch:
 
 permissions:
@@ -27,17 +27,17 @@ jobs:
       - name: Restore and compile WPF application
         shell: pwsh
         run: |
-          dotnet restore src/OTS.Clipboard/OTS.Clipboard.csproj
+          dotnet restore src/OTS.Clipboard.History/OTS.Clipboard.History.csproj
           if ($LASTEXITCODE -ne 0) { throw 'Restore failed' }
-          dotnet build src/OTS.Clipboard/OTS.Clipboard.csproj --no-restore --configuration Release
+          dotnet build src/OTS.Clipboard.History/OTS.Clipboard.History.csproj --no-restore --configuration Release
           if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
 
       - name: Publish self-contained Windows application
         shell: pwsh
         run: |
-          dotnet publish src/OTS.Clipboard/OTS.Clipboard.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None --output dist/publish
+          dotnet publish src/OTS.Clipboard.History/OTS.Clipboard.History.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None --output dist/publish
           if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }
-          if (-not (Test-Path 'dist/publish/OTS.Clipboard.exe')) { throw 'Application executable missing' }
+          if (-not (Test-Path 'dist/publish/OTS.Clipboard.History.exe')) { throw 'Application executable missing' }
 
       - name: Install Inno Setup when necessary
         shell: pwsh
@@ -52,26 +52,26 @@ jobs:
       - name: Compile actual .exe installer
         shell: pwsh
         run: |
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'packaging/OTS_Clipboard.iss'
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'packaging/OTS_Clipboard_History.iss'
           if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
-          if (-not (Test-Path 'dist/setup/OTS_Clipboard_Setup.exe')) { throw 'Installer executable missing' }
+          if (-not (Test-Path 'dist/setup/OTS_Clipboard_History_Setup.exe')) { throw 'Installer executable missing' }
 
       - name: Generate SHA-256 checksum
         shell: pwsh
         run: |
-          $file = 'dist/setup/OTS_Clipboard_Setup.exe'
+          $file = 'dist/setup/OTS_Clipboard_History_Setup.exe'
           $hash = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLowerInvariant()
-          Set-Content -Path 'dist/setup/OTS_Clipboard_Setup.exe.sha256' -Value "$hash  OTS_Clipboard_Setup.exe" -Encoding ascii
+          Set-Content -Path 'dist/setup/OTS_Clipboard_History_Setup.exe.sha256' -Value "$hash  OTS_Clipboard_History_Setup.exe" -Encoding ascii
           Get-Item $file | Select-Object FullName,Length
           Write-Host "SHA-256: $hash"
 
       - name: Upload downloadable installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OTS_Clipboard_Windows_Installer
+          name: OTS_Clipboard_History_Windows_Installer
           path: |
-            dist/setup/OTS_Clipboard_Setup.exe
-            dist/setup/OTS_Clipboard_Setup.exe.sha256
+            dist/setup/OTS_Clipboard_History_Setup.exe
+            dist/setup/OTS_Clipboard_History_Setup.exe.sha256
           if-no-files-found: error
           retention-days: 30
 
@@ -80,17 +80,17 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path installer -Force | Out-Null
-          $file = 'dist/setup/OTS_Clipboard_Setup.exe'
+          $file = 'dist/setup/OTS_Clipboard_History_Setup.exe'
           $size = (Get-Item $file).Length
           if ($size -ge 95000000) {
             Write-Warning "Installer exceeds safe GitHub repository file size. Use the Actions artifact instead."
             exit 0
           }
-          Copy-Item $file 'installer/OTS_Clipboard_Setup.exe' -Force
-          Copy-Item 'dist/setup/OTS_Clipboard_Setup.exe.sha256' 'installer/OTS_Clipboard_Setup.exe.sha256' -Force
+          Copy-Item $file 'installer/OTS_Clipboard_History_Setup.exe' -Force
+          Copy-Item 'dist/setup/OTS_Clipboard_History_Setup.exe.sha256' 'installer/OTS_Clipboard_History_Setup.exe.sha256' -Force
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add installer/OTS_Clipboard_Setup.exe installer/OTS_Clipboard_Setup.exe.sha256
+          git add installer/OTS_Clipboard_History_Setup.exe installer/OTS_Clipboard_History_Setup.exe.sha256
           git diff --cached --quiet
           if ($LASTEXITCODE -ne 0) {
             git commit -m 'build: update installable Windows EXE [skip ci]'

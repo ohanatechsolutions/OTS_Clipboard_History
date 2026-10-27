@@ -6,10 +6,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>OTS.Clipboard</AssemblyName>
-    <RootNamespace>OTS.Clipboard</RootNamespace>
-    <Version>1.0.0</Version>
-    <ApplicationTitle>OTS Clipboard</ApplicationTitle>
+    <AssemblyName>OTS.Clipboard.History</AssemblyName>
+    <RootNamespace>OTS.Clipboard.History</RootNamespace>
+    <Version>1.1.0</Version>
+    <ApplicationTitle>OTS Clipboard History</ApplicationTitle>
     <Authors>Ohana Tech Solutions</Authors>
     <Description>Private local Windows clipboard history manager</Description>
   </PropertyGroup>
