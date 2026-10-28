@@ -8,9 +8,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>OTS.Clipboard.History</AssemblyName>
     <RootNamespace>OTS.Clipboard.History</RootNamespace>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <ApplicationTitle>OTS Clipboard History</ApplicationTitle>
+    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <Authors>Ohana Tech Solutions</Authors>
     <Description>Private local Windows clipboard history manager</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Resources\App.ico" />
+  </ItemGroup>
 </Project>

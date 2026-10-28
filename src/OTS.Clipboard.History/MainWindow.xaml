@@ -1,7 +1,7 @@
 <Window x:Class="OTS.Clipboard.History.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="OTS Clipboard History" Width="1020" Height="700" MinWidth="740" MinHeight="480"
+        Title="OTS Clipboard History" Icon="pack://application:,,,/Resources/App.ico" Width="1020" Height="700" MinWidth="740" MinHeight="480"
         WindowStartupLocation="CenterScreen" Background="#0F1724" Foreground="#EAF1FA"
         FontFamily="Segoe UI" FontSize="13">
     <Window.Resources>

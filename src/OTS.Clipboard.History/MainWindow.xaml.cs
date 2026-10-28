@@ -38,6 +38,7 @@ public partial class MainWindow : Window
     private readonly HistoryStore _store = new();
     private readonly ObservableCollection<ClipboardEntry> _history = new();
     private readonly System.Windows.Forms.NotifyIcon _trayIcon;
+    private readonly System.Drawing.Icon _trayIconImage;
     private HwndSource? _source;
     private IntPtr _hwnd;
     private ClipboardEntry? _contextItem;
@@ -80,9 +81,10 @@ public partial class MainWindow : Window
         var menu = new System.Windows.Forms.ContextMenuStrip();
         menu.Items.Add("Open OTS Clipboard History", null, (_, _) => RestoreWindow());
         menu.Items.Add("Exit OTS Clipboard History", null, (_, _) => ExitApplication());
+        _trayIconImage = LoadTrayIcon();
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = _trayIconImage,
             Text = "OTS Clipboard History",
             Visible = true,
             ContextMenuStrip = menu
@@ -93,6 +95,19 @@ public partial class MainWindow : Window
             if (WindowState == WindowState.Minimized && !_exitRequested)
                 Hide();
         };
+    }
+
+    private static System.Drawing.Icon LoadTrayIcon()
+    {
+        // WPF embeds the exact same icon resource used by our window and executable.
+        // Clone the native icon so the WPF resource stream can be safely disposed.
+        var resource = System.Windows.Application.GetResourceStream(
+            new Uri("pack://application:,,,/Resources/App.ico", UriKind.Absolute))
+            ?? throw new InvalidOperationException("The embedded OTS Clipboard History icon was not found.");
+
+        using var stream = resource.Stream;
+        using var icon = new System.Drawing.Icon(stream);
+        return (System.Drawing.Icon)icon.Clone();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -446,6 +461,7 @@ public partial class MainWindow : Window
         _source?.RemoveHook(WndProc);
         _trayIcon.Visible = false;
         _trayIcon.Dispose();
+        _trayIconImage.Dispose();
         base.OnClosing(e);
     }
 }

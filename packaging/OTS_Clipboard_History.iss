@@ -1,5 +1,5 @@
 #define MyAppName "OTS Clipboard History"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "Ohana Tech Solutions"
 #define MyAppExeName "OTS.Clipboard.History.exe"
 
@@ -14,6 +14,7 @@ PrivilegesRequired=lowest
 UsePreviousAppDir=no
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
+SetupIconFile=..\src\OTS.Clipboard.History\Resources\App.ico
 OutputDir=..\dist\setup
 OutputBaseFilename=OTS_Clipboard_History_Setup
 Compression=lzma2

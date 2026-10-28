@@ -16,6 +16,10 @@ If the installer has not appeared yet, open **Actions > Build Windows installer 
 
 **The installer bundles the .NET Desktop runtime** (self-contained). Users don't need Python, Visual Studio, or the .NET SDK.
 
+## Application icon
+
+The app uses the supplied clipboard-list artwork, stored at `src/OTS.Clipboard.History/Resources/App.ico`. This icon is embedded into the Windows executable and used by the main window, edit dialog, system tray, installer, and Start menu/desktop shortcuts. Reinstall `OTS_Clipboard_History_Setup.exe` to apply the update. If Windows continues displaying an older icon due to its icon cache, unpin and re-pin the shortcut or restart Windows Explorer.
+
 ## Using the app
 
 - **Copy text anywhere in Windows:** the app automatically records it with a local timestamp.
@@ -90,4 +94,4 @@ GitHub Actions availability and minutes depend on your GitHub plan, especially f
 
 ## Version and licensing
 
-Version **1.1.0**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.
+Version **1.1.1**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.
