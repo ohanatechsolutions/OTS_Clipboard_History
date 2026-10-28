@@ -93,17 +93,23 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add installer/OTS_Clipboard_History_Setup.exe installer/OTS_Clipboard_History_Setup.exe.sha256
           git diff --cached --quiet
-          if ($LASTEXITCODE -ne 0) {
-            git commit -m 'build: update installable Windows EXE [skip ci]'
-            if ($LASTEXITCODE -ne 0) { throw 'Installer commit failed' }
-            # Other workflows may commit branding assets while this build is running.
-            # Rebase the installer-only commit onto the latest main before pushing.
-            git fetch origin main
-            if ($LASTEXITCODE -ne 0) { throw 'Could not fetch latest main' }
-            git rebase origin/main
-            if ($LASTEXITCODE -ne 0) { throw 'Installer rebase conflict; download the Actions artifact' }
-            git push origin HEAD:main
-            if ($LASTEXITCODE -ne 0) { throw 'Installer push failed; download the Actions artifact' }
-          } else {
+          if ($LASTEXITCODE -eq 0) {
             Write-Host 'Installer files are unchanged.'
+            exit 0
+          }
+          # Never publish a stale installer over newer source commits.
+          # Every source push starts its own build; our artifact is already uploaded.
+          git fetch origin main
+          if ($LASTEXITCODE -ne 0) { throw 'Could not check main before publishing' }
+          $remoteHead = (git rev-parse origin/main).Trim()
+          if ($remoteHead -ne $env:GITHUB_SHA) {
+            Write-Warning 'Main advanced during this build; the new commit will publish its own installer. This run artifact remains downloadable.'
+            exit 0
+          }
+          git commit -m 'build: update installable Windows EXE [skip ci]'
+          if ($LASTEXITCODE -ne 0) { throw 'Installer commit failed' }
+          git push origin HEAD:main
+          if ($LASTEXITCODE -ne 0) {
+            # A concurrent successful build may have advanced main in the last instant.
+            Write-Warning 'Main advanced while publishing; retained verified installer as an Actions artifact instead.'
           }
