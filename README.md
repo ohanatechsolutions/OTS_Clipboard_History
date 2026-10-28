@@ -29,11 +29,13 @@ The official PNG is now the user's original **1024 × 1024 transparent image**, 
 
 The app uses the supplied clipboard-list artwork, stored at `src/OTS.Clipboard.History/Resources/App.ico`. This icon is embedded into the Windows executable and used by the main window, edit dialog, system tray, installer, and Start menu/desktop shortcuts. Reinstall `OTS_Clipboard_History_Setup.exe` to apply the update. If Windows continues displaying an older icon due to its icon cache, unpin and re-pin the shortcut or restart Windows Explorer.
 
-## New v1.2.1 interface and tray interaction
+## New v1.2.2 interface and tray interaction
 
 - **Updated custom icon:** the supplied watermark-free \`clipboard_transparent.ico\` is embedded as \`Resources/App.ico\` and replaces the previous icon in the main window, edit window, compiled executable, installer, shortcuts and system tray.
 - **System tray toggle:** one **left click** on the tray icon shows the window when hidden and hides it when visible. Right-click opens the Show / Hide and Exit menu. The icon stays present while the application runs; Windows may place it under the hidden-icons **^** overflow. Pin it from Windows **Settings > Personalization > Taskbar > Other system tray icons** to make it always visible.
 - **Polished dark mode:** glass-like rounded slate clip cards, softer steel-blue selection glow, more breathing room and text padding, search field and clip category filtering.
+- **Readable dark category dropdown:** both the closed filter and its expanded options use dark slate panels with high-contrast white text and blue hover/selected states.
+- **Visual multi-select:** every card has a checkbox; checked cards show a vivid steel-blue highlight and a checkmark, and the toolbar displays how many clips are selected. Checking a box adds or removes that card without losing other selections or copying the clip. Ctrl/Shift row selection, right-click selection actions, and Delete selected continue to work.
 - **Images supported:** stores actual clipboard images as PNG inside the encrypted local history, limited to 5 MB per image. Clicking an image history entry restores the image to Windows clipboard for pasting. Text, Links, Code, and hex Color clips are identified automatically.
 - **Search:** filter history by text or clip category (image-only clips can be filtered with the Images dropdown).
 - **Existing history preserved:** older encrypted text-only entries remain readable. Nothing is uploaded to the cloud.
@@ -112,4 +114,4 @@ GitHub Actions availability and minutes depend on your GitHub plan, especially f
 
 ## Version and licensing
 
-Version **1.2.1**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.
+Version **1.2.2**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.

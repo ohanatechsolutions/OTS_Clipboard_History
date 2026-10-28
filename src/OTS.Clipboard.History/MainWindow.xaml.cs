@@ -246,10 +246,51 @@ public partial class MainWindow : Window
 
     private void HistoryGrid_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        var row = GetRow(e.OriginalSource as DependencyObject);
+        var source = e.OriginalSource as DependencyObject;
+        // Clicking a selection checkbox should NEVER copy the clip again.
+        if (IsInsideCheckBox(source)) return;
+
+        _contextItem = null;
+        var row = GetRow(source);
         if (row?.Item is ClipboardEntry entry &&
             (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == ModifierKeys.None)
             CopyEntry(entry);
+    }
+
+    private static bool IsInsideCheckBox(DependencyObject? source)
+    {
+        while (source is not null && source is not DataGridRow)
+        {
+            if (source is CheckBox) return true;
+            source = VisualTreeHelper.GetParent(source);
+        }
+        return false;
+    }
+
+    private void ClipCheckbox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // Intercept before DataGrid's click-to-select handler, so checking a second
+        // row does not clear the first selection and does not copy its contents.
+        if (sender is not CheckBox box) return;
+        var row = GetRow(box);
+        if (row?.Item is not ClipboardEntry entry) return;
+
+        _contextItem = null;
+        if (HistoryGrid.SelectedItems.Contains(entry))
+            HistoryGrid.SelectedItems.Remove(entry);
+        else
+            HistoryGrid.SelectedItems.Add(entry);
+
+        e.Handled = true;
+    }
+
+    private void HistoryGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (SelectedCountText is null) return;
+        var count = HistoryGrid.SelectedItems.Count;
+        SelectedCountText.Text = count == 1 ? "1 selected" : $"{count:N0} selected";
+        SelectedCountText.Foreground = new SolidColorBrush(
+            count > 0 ? Color.FromRgb(180, 212, 245) : Color.FromRgb(139, 168, 205));
     }
 
     private void HistoryGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -488,6 +529,11 @@ public partial class MainWindow : Window
         CountText.Text = _history.Count.ToString("N0") + " saved clips";
         if (EmptyState is not null)
             EmptyState.Visibility = _view is null || _view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
+        if (SelectedCountText is not null)
+        {
+            var selected = HistoryGrid.SelectedItems.Count;
+            SelectedCountText.Text = selected == 1 ? "1 selected" : $"{selected:N0} selected";
+        }
     }
 
     private bool FilterEntry(object candidate)

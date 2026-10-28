@@ -1,5 +1,5 @@
 #define MyAppName "OTS Clipboard History"
-#define MyAppVersion "1.2.1"
+#define MyAppVersion "1.2.2"
 #define MyAppPublisher "Ohana Tech Solutions"
 #define MyAppExeName "OTS.Clipboard.History.exe"
 

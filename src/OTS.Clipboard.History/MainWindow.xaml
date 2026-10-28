@@ -9,6 +9,132 @@
         <SolidColorBrush x:Key="AccentBrush" Color="#34587C"/>
         <SolidColorBrush x:Key="CardBrush" Color="#1E293B"/>
         <SolidColorBrush x:Key="InkBrush" Color="#FFFFFF"/>
+
+        <!-- Own both the closed ComboBox and its Popup template: native Windows
+             ComboBox defaults can otherwise paint a white field or dropdown. -->
+        <Style x:Key="DarkCategoryItem" TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="Foreground" Value="#F2F7FF"/>
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="OptionSurface" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}" CornerRadius="6" Margin="3,2">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="OptionSurface" Property="Background" Value="#34587C"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="OptionSurface" Property="Background" Value="#244D70"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#64748B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DarkCategoryCombo" TargetType="{x:Type ComboBox}">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#34587C"/>
+            <Setter Property="ItemContainerStyle" Value="{StaticResource DarkCategoryItem}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <Border x:Name="CategoryShell" Background="#1E293B"
+                                    BorderBrush="#34587C" BorderThickness="1" CornerRadius="12">
+                                <Grid>
+                                    <ContentPresenter VerticalAlignment="Center" Margin="15,0,34,0"
+                                                      IsHitTestVisible="False"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+                                    <Path Data="M 0 0 L 5 5 L 10 0" Stroke="#8BA8CD"
+                                          StrokeThickness="1.8" StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          HorizontalAlignment="Right" VerticalAlignment="Center"
+                                          Margin="0,0,17,0"/>
+                                </Grid>
+                            </Border>
+                            <ToggleButton x:Name="Toggle" Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True"
+                                   Placement="Bottom" Focusable="False" StaysOpen="False"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                   PopupAnimation="Fade">
+                                <Border Background="#152438" BorderBrush="#34587C"
+                                        BorderThickness="1" CornerRadius="10" Padding="4"
+                                        Margin="0,5,0,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#02050A" BlurRadius="16"
+                                                          ShadowDepth="6" Opacity="0.65"/>
+                                    </Border.Effect>
+                                    <ScrollViewer MaxHeight="300" CanContentScroll="True">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="CategoryShell" Property="BorderBrush" Value="#8BA8CD"/>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="CategoryShell" Property="Background" Value="#24405E"/>
+                                <Setter TargetName="CategoryShell" Property="BorderBrush" Value="#8BA8CD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CardSelectCheckbox" TargetType="{x:Type CheckBox}">
+            <Setter Property="Width" Value="21"/>
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTip" Value="Check to select or deselect this clip"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <Grid Width="21" Height="21">
+                            <Border x:Name="CheckSurface" Width="21" Height="21"
+                                    Background="#132337" BorderBrush="#6583A3"
+                                    BorderThickness="1.5" CornerRadius="5"/>
+                            <Path x:Name="CheckMark" Data="M 4 10 L 9 15 L 17 6"
+                                  Stroke="#FFFFFF" StrokeThickness="2.2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Visibility="Collapsed"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckSurface" Property="Background" Value="#4E79A7"/>
+                                <Setter TargetName="CheckSurface" Property="BorderBrush" Value="#A6C8EE"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckSurface" Property="BorderBrush" Value="#C3DDFA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="Foreground" Value="#EFF6FF"/>
             <Setter Property="Background" Value="#24405E"/>
@@ -58,12 +184,13 @@
                                 <Setter TargetName="Card" Property="BorderBrush" Value="#4E79A7"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#24405E"/>
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#8BA8CD"/>
+                                <Setter TargetName="Card" Property="Background" Value="#294D70"/>
+                                <Setter TargetName="Card" Property="BorderBrush" Value="#B4D4F5"/>
+                                <Setter TargetName="Card" Property="BorderThickness" Value="4,1.5,1.5,1.5"/>
                                 <Setter TargetName="Card" Property="Effect">
                                     <Setter.Value>
                                         <DropShadowEffect Color="#4E79A7" BlurRadius="14"
-                                                          ShadowDepth="0" Opacity="0.28"/>
+                                                          ShadowDepth="0" Opacity="0.42"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -168,16 +295,15 @@
                 </Grid>
             </Border>
             <ComboBox x:Name="CategoryFilter" Grid.Column="1" Height="48" SelectedIndex="0"
-                      Background="#1E293B" Foreground="#FFFFFF"
-                      BorderBrush="#34587C" BorderThickness="1"
+                      Style="{StaticResource DarkCategoryCombo}"
                       SelectionChanged="CategoryFilter_SelectionChanged"
-                      Padding="12,7" FontWeight="SemiBold">
-                <ComboBoxItem Content="All clips" Tag="All"/>
-                <ComboBoxItem Content="Text" Tag="Text"/>
-                <ComboBoxItem Content="Code" Tag="Code"/>
-                <ComboBoxItem Content="Links" Tag="Links"/>
-                <ComboBoxItem Content="Colors" Tag="Color"/>
-                <ComboBoxItem Content="Images" Tag="Image"/>
+                      FontWeight="SemiBold">
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="All clips" Tag="All"/>
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="Text" Tag="Text"/>
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="Code" Tag="Code"/>
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="Links" Tag="Links"/>
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="Colors" Tag="Color"/>
+                <ComboBoxItem Style="{StaticResource DarkCategoryItem}" Content="Images" Tag="Image"/>
             </ComboBox>
         </Grid>
 
@@ -216,6 +342,10 @@
             </Button>
             <Button Grid.Column="1" Content="Delete selected" Margin="10,0,0,0"
                     Style="{StaticResource ActionButton}" Click="DeleteSelected_Click"/>
+            <TextBlock x:Name="SelectedCountText" Grid.Column="2"
+                       Text="0 selected" Foreground="#8BA8CD"
+                       Margin="14,0,0,0" VerticalAlignment="Center"
+                       FontSize="12" FontWeight="SemiBold"/>
             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                 <CheckBox x:Name="TrackingCheckBox" Content="Track clipboard" IsChecked="True"
                           VerticalAlignment="Center" Foreground="#E4EEF8"
@@ -239,13 +369,27 @@
                           CanUserReorderColumns="False" CanUserResizeRows="False"
                           EnableRowVirtualization="True" EnableColumnVirtualization="True"
                           ClipboardCopyMode="None"
+                          SelectionChanged="HistoryGrid_SelectionChanged"
                           PreviewMouseLeftButtonUp="HistoryGrid_PreviewMouseLeftButtonUp"
                           PreviewMouseRightButtonDown="HistoryGrid_PreviewMouseRightButtonDown">
                     <DataGrid.Columns>
+                        <!-- Selection is bound to the row, so context-menu, Ctrl/Shift
+                             selection and checkboxes all stay in sync. -->
+                        <DataGridTemplateColumn Width="53" CanUserSort="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox Style="{StaticResource CardSelectCheckbox}"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Focusable="False"
+                                              IsChecked="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Mode=OneWay}"
+                                              PreviewMouseLeftButtonDown="ClipCheckbox_PreviewMouseLeftButtonDown"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTemplateColumn Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="22,15,14,15">
+                                    <StackPanel Margin="12,15,14,15">
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                             <Border Background="#34587C" CornerRadius="9"
                                                     Padding="9,3">
