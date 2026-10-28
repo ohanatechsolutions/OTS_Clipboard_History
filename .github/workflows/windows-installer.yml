@@ -110,7 +110,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Installer commit failed' }
           git push origin HEAD:main
           if ($LASTEXITCODE -ne 0) {
-            # A concurrent successful build may have advanced main in the last instant.
+            git fetch origin main
+            if ($LASTEXITCODE -ne 0) { throw 'Push failed and remote main could not be checked' }
+            $afterHead = (git rev-parse origin/main).Trim()
+            if ($afterHead -eq $remoteHead) { throw 'Installer push failed without a competing commit' }
             Write-Warning 'Main advanced while publishing; retained verified installer as an Actions artifact instead.'
             exit 0
           }
