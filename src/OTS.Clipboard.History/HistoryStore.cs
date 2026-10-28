@@ -31,7 +31,7 @@ public sealed class HistoryStore
         var entries = JsonSerializer.Deserialize<List<ClipboardEntry>>(plaintext, JsonOptions)
                       ?? new List<ClipboardEntry>();
         var validEntries = entries
-            .Where(item => item is not null && !string.IsNullOrEmpty(item.Text))
+            .Where(item => item is not null && (!string.IsNullOrEmpty(item.Text) || !string.IsNullOrEmpty(item.ImagePngBase64)))
             .OrderByDescending(item => item.CopiedUtc)
             .ToList();
 

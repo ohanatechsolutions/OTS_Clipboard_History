@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Edit clipboard entry" Icon="pack://application:,,,/Resources/App.ico" Width="640" Height="410" MinWidth="430" MinHeight="290"
-        WindowStartupLocation="CenterOwner" Background="#101825" Foreground="#EAF1FA"
+        WindowStartupLocation="CenterOwner" Background="#0F172A" Foreground="#EAF1FA"
         FontFamily="Segoe UI" FontSize="14" ShowInTaskbar="False">
     <Grid Margin="22">
         <Grid.RowDefinitions>
@@ -13,19 +13,19 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
             <TextBlock Text="Edit copied text" FontSize="20" FontWeight="SemiBold"/>
             <TextBlock Text="Changes affect this saved history entry, not the current clipboard."
-                       Foreground="#9AAAC0" FontSize="12" Margin="0,4,0,0"/>
+                       Foreground="#8BA8CD" FontSize="12" Margin="0,4,0,0"/>
         </StackPanel>
         <TextBox x:Name="Editor" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True"
                  TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled" SpellCheck.IsEnabled="False"
-                 Background="#192536" Foreground="#EAF1FA" BorderBrush="#35445A"
+                 Background="#1E293B" Foreground="#EAF1FA" BorderBrush="#34587C"
                  BorderThickness="1" Padding="12" FontFamily="Consolas" FontSize="13"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="Cancel" Width="95" Height="36" Margin="0,0,10,0"
-                    Click="Cancel_Click" Background="#304056" Foreground="White"
+                    Click="Cancel_Click" Background="#24405E" Foreground="White"
                     BorderThickness="0" IsCancel="True"/>
             <Button Content="Save changes" Width="125" Height="36" Click="Save_Click"
-                    Background="#1595C7" Foreground="White" BorderThickness="0"/>
+                    Background="#34587C" Foreground="White" BorderThickness="0"/>
         </StackPanel>
     </Grid>
 </Window>

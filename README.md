@@ -20,6 +20,15 @@ If the installer has not appeared yet, open **Actions > Build Windows installer 
 
 The app uses the supplied clipboard-list artwork, stored at `src/OTS.Clipboard.History/Resources/App.ico`. This icon is embedded into the Windows executable and used by the main window, edit dialog, system tray, installer, and Start menu/desktop shortcuts. Reinstall `OTS_Clipboard_History_Setup.exe` to apply the update. If Windows continues displaying an older icon due to its icon cache, unpin and re-pin the shortcut or restart Windows Explorer.
 
+## New v1.2.0 interface and tray interaction
+
+- **Updated custom icon:** the supplied watermark-free \`clipboard_transparent.ico\` is embedded as \`Resources/App.ico\` and replaces the previous icon in the main window, edit window, compiled executable, installer, shortcuts and system tray.
+- **System tray toggle:** one **left click** on the tray icon shows the window when hidden and hides it when visible. Right-click opens the Show / Hide and Exit menu. The icon stays present while the application runs; Windows may place it under the hidden-icons **^** overflow. Pin it from Windows **Settings > Personalization > Taskbar > Other system tray icons** to make it always visible.
+- **Polished dark mode:** glass-like rounded slate clip cards, softer steel-blue selection glow, more breathing room and text padding, search field and clip category filtering.
+- **Images supported:** stores actual clipboard images as PNG inside the encrypted local history, limited to 5 MB per image. Clicking an image history entry restores the image to Windows clipboard for pasting. Text, Links, Code, and hex Color clips are identified automatically.
+- **Search:** filter history by text or clip category (image-only clips can be filtered with the Images dropdown).
+- **Existing history preserved:** older encrypted text-only entries remain readable. Nothing is uploaded to the cloud.
+
 ## Using the app
 
 - **Copy text anywhere in Windows:** the app automatically records it with a local timestamp.
@@ -31,7 +40,7 @@ The app uses the supplied clipboard-list artwork, stored at `src/OTS.Clipboard.H
 - **Start with Windows:** optional per-user autostart, disabled by default.
 - **Minimize or close the window:** it keeps working in the notification tray; double-click the tray icon to reopen. Right-click the tray icon > **Exit OTS Clipboard History** to stop it.
 
-Only **plain text** is captured; image, rich formatting, and files are not captured. To keep the app responsive it skips clipboard text longer than two million characters. Editing a saved entry does not modify the current system clipboard until you copy that entry again. UI uses a one-line preview; clicking copies the complete original text.
+Plain text and images are captured (image PNG payload up to 5 MB); rich text formatting and file-list copies are not captured. To keep the app responsive it skips clipboard text longer than two million characters. Editing a saved entry does not modify the current system clipboard until you copy that entry again. UI uses a one-line preview; clicking copies the complete original text.
 
 ## Security / data storage
 
@@ -83,10 +92,10 @@ GitHub Actions availability and minutes depend on your GitHub plan, especially f
 
 - Windows 10/11 x64 only, normal desktop user session. No administrator privileges required.
 - Supports Unicode text clipboard formats. Apps that block clipboard reads or Windows secure desktops cannot be monitored.
-- No global hotkey; use the taskbar tray icon to reopen the app.
+- No global hotkey; left-click the system tray icon to show or hide the app.
 - Multiple instances are prevented; if the app says it is already running, find the OTS Clipboard History tray icon.
 - If new entries do not appear, verify **Track clipboard** is checked and the app is running in the tray.
-- If you can't find the app after closing it, open the system tray / hidden icons area.
+- If you can't find the app after closing it, open the system tray / hidden icons area. You may need to enable the OTS Clipboard History icon in Windows Taskbar settings; apps cannot force Windows to pin tray icons.
 - If encrypted history can't be decrypted after Windows user-profile migration, it won't be silently overwritten. Keep the file safe and use the original Windows account/DPAPI keys to recover access.
 - If a Windows build fails, inspect **GitHub > Actions > Build Windows installer > the failed run** and review its logs.
 - Installer uses **per-user installation** and **does not require elevation**.
@@ -94,4 +103,4 @@ GitHub Actions availability and minutes depend on your GitHub plan, especially f
 
 ## Version and licensing
 
-Version **1.1.1**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.
+Version **1.2.0**, 2026. Developed by **Ohana Tech Solutions**. This private repository has no open-source license grant; ask the owner before redistributing source code or compiled binaries.

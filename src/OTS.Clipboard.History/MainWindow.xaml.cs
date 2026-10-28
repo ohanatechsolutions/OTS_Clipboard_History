@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +22,7 @@ public partial class MainWindow : Window
 {
     private const int WmClipboardUpdate = 0x031D;
     private const int MaxCopiedTextLength = 2_000_000;
+    private const int MaxImageBytes = 5 * 1024 * 1024;
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string RunValueName = "OTSClipboardHistory";
     // Preserve previous users' optional startup preference during the rename.
@@ -46,11 +50,14 @@ public partial class MainWindow : Window
     private bool _exitRequested;
     private bool _tracking = true;
     private bool _storageAvailable = true;
+    private ICollectionView? _view;
 
     public MainWindow()
     {
         InitializeComponent();
-        HistoryGrid.ItemsSource = _history;
+        _view = CollectionViewSource.GetDefaultView(_history);
+        _view.Filter = FilterEntry;
+        HistoryGrid.ItemsSource = _view;
         try
         {
             foreach (var entry in _store.Load())
@@ -79,21 +86,27 @@ public partial class MainWindow : Window
         }
 
         var menu = new System.Windows.Forms.ContextMenuStrip();
-        menu.Items.Add("Open OTS Clipboard History", null, (_, _) => RestoreWindow());
+        menu.Items.Add("Show / Hide OTS Clipboard History", null, (_, _) => Dispatcher.BeginInvoke(new Action(ToggleWindowVisibility)));
         menu.Items.Add("Exit OTS Clipboard History", null, (_, _) => ExitApplication());
         _trayIconImage = LoadTrayIcon();
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
             Icon = _trayIconImage,
-            Text = "OTS Clipboard History",
+            Text = "OTS Clipboard History - click to show/hide",
             Visible = true,
             ContextMenuStrip = menu
         };
-        _trayIcon.DoubleClick += (_, _) => RestoreWindow();
+        // A single left-click toggles the window. Right-click opens the exit menu.
+        _trayIcon.MouseClick += (_, e) =>
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+                Dispatcher.BeginInvoke(new Action(ToggleWindowVisibility));
+        };
+        Loaded += (_, _) => _trayIcon.Visible = true;
         StateChanged += (_, _) =>
         {
             if (WindowState == WindowState.Minimized && !_exitRequested)
-                Hide();
+                HideToTray();
         };
     }
 
@@ -143,9 +156,31 @@ public partial class MainWindow : Window
         {
             try
             {
-                if (!_tracking || !_storageAvailable || !System.Windows.Clipboard.ContainsText())
-                    return;
+                if (!_tracking || !_storageAvailable) return;
 
+                if (System.Windows.Clipboard.ContainsImage())
+                {
+                    var image = System.Windows.Clipboard.GetImage();
+                    if (image is null) return;
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    using var stream = new MemoryStream();
+                    encoder.Save(stream);
+                    if (stream.Length > MaxImageBytes)
+                    {
+                        StatusText.Text = "Image skipped (maximum 5 MB per clip).";
+                        return;
+                    }
+                    var png = Convert.ToBase64String(stream.ToArray());
+                    if (_history.Count > 0 && _history[0].ImagePngBase64 == png)
+                        return;
+                    _history.Insert(0, new ClipboardEntry { ImagePngBase64 = png });
+                    Persist();
+                    RefreshCounts();
+                    return;
+                }
+
+                if (!System.Windows.Clipboard.ContainsText()) return;
                 var text = System.Windows.Clipboard.GetText();
                 if (string.IsNullOrEmpty(text))
                     return;
@@ -185,7 +220,18 @@ public partial class MainWindow : Window
         {
             try
             {
-                System.Windows.Clipboard.SetText(entry.Text);
+                if (entry.IsImage)
+                {
+                    using var stream = new MemoryStream(Convert.FromBase64String(entry.ImagePngBase64!));
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.StreamSource = stream;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                    System.Windows.Clipboard.SetImage(bitmap);
+                }
+                else System.Windows.Clipboard.SetText(entry.Text);
                 _lastSelfCopySequence = GetClipboardSequenceNumber();
                 StatusText.Text = "Copied selected entry back to Windows clipboard";
                 return;
@@ -201,7 +247,8 @@ public partial class MainWindow : Window
     private void HistoryGrid_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         var row = GetRow(e.OriginalSource as DependencyObject);
-        if (row?.Item is ClipboardEntry entry)
+        if (row?.Item is ClipboardEntry entry &&
+            (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == ModifierKeys.None)
             CopyEntry(entry);
     }
 
@@ -236,11 +283,17 @@ public partial class MainWindow : Window
     {
         if (GetActionEntry() is not { } entry)
             return;
+        if (entry.IsImage)
+        {
+            StatusText.Text = "Image clips can be copied or deleted; editing is text-only.";
+            return;
+        }
         var dialog = new EditWindow(entry.Text) { Owner = this };
         if (dialog.ShowDialog() != true)
             return;
         entry.Text = dialog.EditedText;
-        HistoryGrid.Items.Refresh();
+        _view?.Refresh();
+        RefreshCounts();
         Persist();
         StatusText.Text = "Saved edited entry";
     }
@@ -431,13 +484,58 @@ public partial class MainWindow : Window
     }
 
     private void RefreshCounts()
-        => CountText.Text = _history.Count.ToString("N0") + " saved entries";
+    {
+        CountText.Text = _history.Count.ToString("N0") + " saved clips";
+        if (EmptyState is not null)
+            EmptyState.Visibility = _view is null || _view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private bool FilterEntry(object candidate)
+    {
+        if (candidate is not ClipboardEntry entry) return false;
+        var query = SearchBox?.Text?.Trim() ?? "";
+        if (query.Length > 0 &&
+            !(entry.Text.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+              entry.Kind.Contains(query, StringComparison.OrdinalIgnoreCase)))
+            return false;
+        var category = (CategoryFilter?.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "All";
+        return category == "All" || entry.Kind == category;
+    }
+
+    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_view is null || CountText is null) return;
+        _view.Refresh();
+        RefreshCounts();
+    }
+
+    private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_view is null || CountText is null) return;
+        _view.Refresh();
+        RefreshCounts();
+    }
 
     private void RestoreWindow()
     {
+        ShowInTaskbar = true;
         Show();
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    private void ToggleWindowVisibility()
+    {
+        if (IsVisible && WindowState != WindowState.Minimized)
+            HideToTray();
+        else
+            RestoreWindow();
+    }
+
+    private void HideToTray()
+    {
+        ShowInTaskbar = false;
+        Hide();
     }
 
     private void ExitApplication()
@@ -451,8 +549,8 @@ public partial class MainWindow : Window
         if (!_exitRequested)
         {
             e.Cancel = true;
-            Hide();
-            StatusText.Text = "Still recording in system tray. Right-click tray icon to exit.";
+            HideToTray();
+            StatusText.Text = "Running in the tray. Click its icon to show or hide.";
             return;
         }
 
@@ -460,6 +558,7 @@ public partial class MainWindow : Window
             RemoveClipboardFormatListener(_hwnd);
         _source?.RemoveHook(WndProc);
         _trayIcon.Visible = false;
+        _trayIcon.ContextMenuStrip?.Dispose();
         _trayIcon.Dispose();
         _trayIconImage.Dispose();
         base.OnClosing(e);
