@@ -23,9 +23,9 @@ If the installer has not appeared yet, open **Actions > Build Windows installer 
 Both formats of the same watermark-free artwork are available in this repository:
 
 - **ICO:** `src/OTS.Clipboard.History/Resources/App.ico` — embedded into the Windows executable and used for the taskbar, title bar, system tray, shortcuts, and installer.
-- **PNG:** `assets/branding/OTS_Clipboard_History_Logo.png` — transparent PNG for README, documentation, UI graphics, and other non-Windows-icon uses.
+- **PNG:** `assets/branding/OTS_Clipboard_History_Logo.png` — original 1024×1024 transparent PNG for README, documentation, large UI graphics, and promotional images.
 
-The uploaded source ICO is **32 × 32 pixels**, so the matching PNG is exported losslessly at that same native size. A genuine high-resolution source image would be needed for sharp large-format graphics; simply upscaling this PNG does not add detail.
+The official PNG is now the user's original **1024 × 1024 transparent image**, retained at full resolution without resizing, recompression, or watermarking. The Windows ICO is the exact user-supplied **32 × 32** icon. Both depict the same artwork and serve different use cases.
 
 The app uses the supplied clipboard-list artwork, stored at `src/OTS.Clipboard.History/Resources/App.ico`. This icon is embedded into the Windows executable and used by the main window, edit dialog, system tray, installer, and Start menu/desktop shortcuts. Reinstall `OTS_Clipboard_History_Setup.exe` to apply the update. If Windows continues displaying an older icon due to its icon cache, unpin and re-pin the shortcut or restart Windows Explorer.
 
