@@ -112,4 +112,5 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             # A concurrent successful build may have advanced main in the last instant.
             Write-Warning 'Main advanced while publishing; retained verified installer as an Actions artifact instead.'
+            exit 0
           }
