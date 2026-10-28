@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Microsoft.Win32;
 using MessageBox = System.Windows.MessageBox;
 using MenuItem = System.Windows.Controls.MenuItem;
+using CheckBox = System.Windows.Controls.CheckBox;
 using DataGridRow = System.Windows.Controls.DataGridRow;
 using Color = System.Windows.Media.Color;
 
