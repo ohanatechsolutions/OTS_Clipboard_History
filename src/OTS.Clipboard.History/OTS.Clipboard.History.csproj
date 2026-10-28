@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>OTS.Clipboard.History</AssemblyName>
     <RootNamespace>OTS.Clipboard.History</RootNamespace>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <ApplicationTitle>OTS Clipboard History</ApplicationTitle>
     <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <Authors>Ohana Tech Solutions</Authors>
@@ -16,5 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="Resources\App.ico" />
+    <!-- Embed the full-resolution PNG for in-app branding; retain ICO for Windows app identity. -->
+    <Resource Include="..\..\assets\branding\OTS_Clipboard_History_Logo.png" Link="Resources\BrandLogo.png" />
   </ItemGroup>
 </Project>

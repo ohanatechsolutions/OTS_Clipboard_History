@@ -104,7 +104,7 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Background="#1E293B" BorderBrush="#3D536C" BorderThickness="1"
                         CornerRadius="12" Padding="9" Margin="0,0,14,0">
-                    <Image Source="pack://application:,,,/Resources/App.ico" Width="33" Height="33"/>
+                    <Image Source="pack://application:,,,/Resources/BrandLogo.png" Width="33" Height="33" Stretch="Uniform"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="OTS Clipboard History" Foreground="#FFFFFF"
