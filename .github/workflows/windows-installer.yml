@@ -4,11 +4,16 @@ on:
   push:
     branches: [main]
     paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
       - 'installer/OTS_Clipboard_History_Setup.exe'
       - 'installer/OTS_Clipboard_History_Setup.exe.sha256'
       - 'assets/branding/**'
   workflow_dispatch:
 
+concurrency:
+  group: ots-clipboard-installer-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 
@@ -74,7 +79,7 @@ jobs:
             dist/setup/OTS_Clipboard_History_Setup.exe
             dist/setup/OTS_Clipboard_History_Setup.exe.sha256
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
       - name: Save real installer in repository installer folder
         if: github.ref == 'refs/heads/main'
