@@ -13,3 +13,24 @@ history.dat
 history.dat.tmp
 *.zip
 # Installer EXE is purposefully committed by GitHub Actions to installer/
+
+# Open-source publication security baseline
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+*.keystore
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
+*.sqlite
+*.sqlite3
+*.db
+*.log
