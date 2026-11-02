@@ -80,7 +80,7 @@ jobs:
             dist/setup/OTS_Clipboard_History_Setup.exe
             dist/setup/OTS_Clipboard_History_Setup.exe.sha256
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
       - name: Save real installer in repository installer folder
         if: github.ref == 'refs/heads/main'
